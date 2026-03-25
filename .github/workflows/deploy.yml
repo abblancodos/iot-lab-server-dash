@@ -1,0 +1,74 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  # ── Job 1: regenerar sqlx cache ────────────────────────────────────────────
+  sqlx-prepare:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: cargo sqlx prepare
+        working-directory: src/rust
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          source ~/.cargo/env
+          cargo sqlx prepare
+
+      - name: Commit sqlx cache si cambió
+        run: |
+          git config user.email "ci@agrodash"
+          git config user.name "CI Bot"
+          git add src/rust/.sqlx
+          git diff --cached --quiet || git commit -m "chore: update sqlx cache [skip ci]"
+          git push --force-with-lease
+
+  # ── Job 2: build y deploy ──────────────────────────────────────────────────
+  deploy:
+    runs-on: self-hosted
+    needs: sqlx-prepare
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      # ── Frontend (SvelteKit) ──────────────────────────────────────────────
+      - name: Instalar dependencias frontend
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+        env:
+          VITE_API_BASE: ${{ secrets.VITE_API_BASE }}
+
+      - name: Copiar frontend a nginx
+        run: |
+          sudo mkdir -p /var/www/agrodash
+          sudo rsync -a --delete build/ /var/www/agrodash/
+
+      # ── Backend (Rust) ────────────────────────────────────────────────────
+      - name: Build API
+        working-directory: src/rust
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          source ~/.cargo/env
+          cargo build --release
+
+      - name: Copiar binario
+        run: |
+          sudo mkdir -p /opt/agrodash/api
+          sudo cp src/rust/target/release/agrodash-api /opt/agrodash/api/agrodash-api
+          sudo chmod +x /opt/agrodash/api/agrodash-api
+
+      # ── Reiniciar contenedor API ──────────────────────────────────────────
+      - name: Restart API container
+        run: docker compose -f /opt/agrodash/docker-compose.yml restart agrodash-api
