@@ -1,0 +1,7 @@
+# Rust
+lab-ctl/target/
+
+# Env
+.env
+backups/
+*.dump
