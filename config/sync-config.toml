@@ -1,0 +1,43 @@
+[sync]
+interval_minutes = 30
+
+[rules.future_timestamp]
+action = "discard"
+log    = true
+
+[rules.past_threshold]
+threshold = "2020-01-01"
+action    = "discard"
+log       = true
+
+[rules.duplicate]
+action = "prefer_source1"
+log    = true
+
+[rules.null_value]
+action = "discard"
+log    = true
+
+[rules.missing_sensor]
+action = "discard"
+log    = true
+
+[rules.out_of_range]
+action = "flag"
+log    = true
+
+[sources.source1]
+host     = "172.21.233.228"
+port     = 5432
+db       = "control"
+user     = "postgres"
+pass     = ""
+priority = 1
+
+[sources.source2]
+host     = ""
+port     = 5432
+db       = "control"
+user     = "postgres"
+pass     = ""
+priority = 2

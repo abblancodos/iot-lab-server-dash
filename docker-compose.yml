@@ -1,0 +1,151 @@
+services:
+
+  # ── GitHub Actions Runner — agrodash ──────────────────────────────────────
+  runner-agrodash:
+    image: abblancodos/agrodash-runner:latest
+    container_name: runner-agrodash
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - runner-agrodash-data:/home/runner
+      - /opt/agrodash/api:/opt/agrodash/api
+      - /var/www/agrodash:/var/www/agrodash
+    environment:
+      - GITHUB_RUNNER_URL=https://github.com/abblancodos/agrodash
+      - GITHUB_RUNNER_TOKEN=${GITHUB_RUNNER_TOKEN_AGRODASH}
+      - GITHUB_RUNNER_NAME=iot-backupserver-agrodash
+      - GITHUB_RUNNER_LABELS=self-hosted,linux,iot-backupserver
+
+  # ── GitHub Actions Runner — iot-lab-server-dash ───────────────────────────
+  runner-lab-ctl:
+    image: abblancodos/agrodash-runner:latest
+    container_name: runner-lab-ctl
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - runner-lab-ctl-data:/home/runner
+      - /opt/lab-ctl:/opt/lab-ctl
+      - /opt/agrodash:/opt/agrodash
+    environment:
+      - GITHUB_RUNNER_URL=https://github.com/abblancodos/iot-lab-server-dash
+      - GITHUB_RUNNER_TOKEN=${GITHUB_RUNNER_TOKEN_LAB_CTL}
+      - GITHUB_RUNNER_NAME=iot-backupserver-lab-ctl
+      - GITHUB_RUNNER_LABELS=self-hosted,linux,iot-backupserver
+
+  # ── AgroDash API (Rust/Axum) ───────────────────────────────────────────────
+  agrodash-api:
+    image: alpine:latest
+    container_name: agrodash-api
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - /opt/agrodash/api/agrodash-api:/app/agrodash-api
+    env_file: .env
+    command: /app/agrodash-api
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── AgroDash Frontend (Nginx + SvelteKit static) ───────────────────────────
+  agrodash-web:
+    image: nginx:alpine
+    container_name: agrodash-web
+    restart: unless-stopped
+    volumes:
+      - /var/www/agrodash:/usr/share/nginx/html:ro
+    ports:
+      - "80:80"
+
+  # ── lab-ctl (sync daemon + API de infraestructura) ────────────────────────
+  lab-ctl:
+    image: alpine:latest
+    container_name: lab-ctl
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/lab-ctl/lab-ctl:/app/lab-ctl
+      - /opt/agrodash/backups:/backups
+      - ./config/sync-config.toml:/config/sync-config.toml:ro
+    env_file: .env
+    command: /app/lab-ctl
+    environment:
+      - CONFIG_PATH=/config/sync-config.toml
+      - PORT=3003
+    ports:
+      - "3003:3003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── PostgreSQL réplica local ───────────────────────────────────────────────
+  postgres:
+    image: abblancodos/agrodash-postgres:latest
+    container_name: agrodash-postgres
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    env_file: .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Portainer ──────────────────────────────────────────────────────────────
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    ports:
+      - "9000:9000"
+
+  # ── Gitea ──────────────────────────────────────────────────────────────────
+  gitea:
+    image: gitea/gitea:latest
+    container_name: gitea
+    restart: unless-stopped
+    volumes:
+      - gitea-data:/data
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    ports:
+      - "3001:3000"
+      - "2222:22"
+
+  # ── Wiki.js ────────────────────────────────────────────────────────────────
+  wiki:
+    image: requarks/wiki:2
+    container_name: wiki
+    restart: unless-stopped
+    environment:
+      - DB_TYPE=postgres
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASS=${POSTGRES_PASSWORD}
+      - DB_NAME=wiki
+    ports:
+      - "3002:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  runner-agrodash-data:
+  runner-lab-ctl-data:
+  postgres-data:
+  portainer-data:
+  gitea-data:
