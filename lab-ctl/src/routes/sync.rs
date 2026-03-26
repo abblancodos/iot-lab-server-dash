@@ -186,7 +186,7 @@ pub async fn audit_summary(
             COUNT(*) FILTER (WHERE NOT resolved) AS "unresolved!: i64"
         FROM sync_audit
         GROUP BY issue_type
-        ORDER BY count DESC
+        ORDER BY 2 DESC
         "#,
     )
     .fetch_all(&state.local_pool)

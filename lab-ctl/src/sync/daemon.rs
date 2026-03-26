@@ -142,7 +142,7 @@ async fn do_sync(
         let key = (reading.sensor_id, reading.created_at);
 
         // Resolver duplicado si existe en source2
-        let (reading, conflict_audit) = if let Some(s2_reading) = s2_map.remove(&key) {
+        let (reading, _conflict_audit) = if let Some(s2_reading) = s2_map.remove(&key) {
             total_conflict += 1;
             let (winner, audit) = rules::resolve_duplicate(&reading, &s2_reading, config, log_id);
             if let Some(a) = audit { audit_entries.push(a); }

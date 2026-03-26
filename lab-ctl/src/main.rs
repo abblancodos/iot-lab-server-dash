@@ -6,7 +6,6 @@ mod routes;
 mod sync;
 
 use std::sync::Arc;
-use std::time::Duration;
 
 use axum::{routing::{get, post, delete}, Router};
 use sqlx::PgPool;
