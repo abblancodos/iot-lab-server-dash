@@ -13,10 +13,15 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     pkg-config \
     docker.io \
-    docker-compose-plugin \
     rsync \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
+
+# Docker Compose plugin
+RUN mkdir -p /usr/local/lib/docker/cli-plugins && \
+    curl -SL https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-linux-x86_64 \
+    -o /usr/local/lib/docker/cli-plugins/docker-compose && \
+    chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
 # Usuario runner
 RUN useradd -m -s /bin/bash runner && \
