@@ -56,13 +56,10 @@ jobs:
 
       - name: Copiar sync-config.toml
         run: |
+          sudo mkdir -p /opt/lab-ctl
           sudo cp config/sync-config.toml /opt/lab-ctl/sync-config.toml
-
-      - name: Copiar docker-compose.yml
-        run: |
-          sudo cp docker-compose.yml /opt/agrodash/docker-compose.yml
 
       - name: Restart lab-ctl
         run: |
-          docker compose -f /opt/agrodash/docker-compose.yml stop lab-ctl
-          docker compose -f /opt/agrodash/docker-compose.yml up -d lab-ctl
+          docker compose -f /opt/iot-server/docker-compose.yml stop lab-ctl
+          docker compose -f /opt/iot-server/docker-compose.yml up -d lab-ctl

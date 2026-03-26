@@ -8,8 +8,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - runner-agrodash-data:/home/runner
-      - /opt/agrodash/api:/opt/agrodash/api
-      - /var/www/agrodash:/var/www/agrodash
+      - /opt/agrodash-api:/opt/agrodash-api
+      - /opt/agrodash-web:/opt/agrodash-web
     environment:
       - GITHUB_RUNNER_URL=https://github.com/abblancodos/agrodash
       - GITHUB_RUNNER_TOKEN=${GITHUB_RUNNER_TOKEN_AGRODASH}
@@ -25,7 +25,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - runner-lab-ctl-data:/home/runner
       - /opt/lab-ctl:/opt/lab-ctl
-      - /opt/agrodash:/opt/agrodash
+      - /opt/iot-server:/opt/iot-server
     environment:
       - GITHUB_RUNNER_URL=https://github.com/abblancodos/iot-lab-server-dash
       - GITHUB_RUNNER_TOKEN=${GITHUB_RUNNER_TOKEN_LAB_CTL}
@@ -39,7 +39,7 @@ services:
     restart: unless-stopped
     working_dir: /app
     volumes:
-      - /opt/agrodash/api/agrodash-api:/app/agrodash-api
+      - /opt/agrodash-api/agrodash-api:/app/agrodash-api
     env_file: .env
     command: /app/agrodash-api
     ports:
@@ -54,7 +54,7 @@ services:
     container_name: agrodash-web
     restart: unless-stopped
     volumes:
-      - /var/www/agrodash:/usr/share/nginx/html:ro
+      - /opt/agrodash-web:/usr/share/nginx/html:ro
     ports:
       - "80:80"
 
@@ -67,8 +67,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/lab-ctl/lab-ctl:/app/lab-ctl
-      - /opt/agrodash/backups:/backups
-      - ./config/sync-config.toml:/config/sync-config.toml:ro
+      - /opt/iot-server/backups:/backups
+      - /opt/iot-server/config/sync-config.toml:/config/sync-config.toml:ro
     env_file: .env
     command: /app/lab-ctl
     environment:
