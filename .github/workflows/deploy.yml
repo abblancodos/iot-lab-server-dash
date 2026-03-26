@@ -5,87 +5,19 @@ on:
     branches: [main]
 
 jobs:
-  # ── Job 1: sqlx prepare contra postgres efímero ───────────────────────────
+  # ── Job 1: sqlx prepare contra el postgres del compose ───────────────────
   sqlx-prepare:
     runs-on: self-hosted
-
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: agrodash
-          POSTGRES_PASSWORD: ci
-          POSTGRES_DB: control
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5433:5432
 
     steps:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Crear tablas de audit
-        run: |
-          PGPASSWORD=ci psql -h localhost -p 5433 -U agrodash -d control << 'SQL'
-          CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-          CREATE TABLE IF NOT EXISTS sync_log (
-              id               uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-              started_at       timestamp NOT NULL DEFAULT now(),
-              finished_at      timestamp,
-              source           text NOT NULL,
-              status           text NOT NULL,
-              records_synced   integer NOT NULL DEFAULT 0,
-              records_skipped  integer NOT NULL DEFAULT 0,
-              records_flagged  integer NOT NULL DEFAULT 0,
-              records_conflict integer NOT NULL DEFAULT 0,
-              error_msg        text
-          );
-          CREATE TABLE IF NOT EXISTS sync_audit (
-              id          uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-              synced_at   timestamp NOT NULL DEFAULT now(),
-              sync_log_id uuid REFERENCES sync_log(id) ON DELETE SET NULL,
-              source      text NOT NULL,
-              issue_type  text NOT NULL,
-              table_name  text NOT NULL DEFAULT 'readings',
-              record_id   uuid,
-              details     jsonb,
-              resolved    boolean NOT NULL DEFAULT false,
-              resolved_at timestamp,
-              resolution  text
-          );
-          CREATE TABLE IF NOT EXISTS boxes (id uuid PRIMARY KEY, name text NOT NULL);
-          CREATE TABLE IF NOT EXISTS sensors (
-              id            uuid PRIMARY KEY,
-              box_id        uuid REFERENCES boxes(id),
-              sensor_number integer NOT NULL,
-              type          text NOT NULL
-          );
-          CREATE TABLE IF NOT EXISTS readings (
-              id         uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-              sensor_id  uuid REFERENCES sensors(id),
-              value      numeric,
-              created_at timestamp NOT NULL DEFAULT now()
-          );
-          CREATE TABLE IF NOT EXISTS alert_ranges (
-              id            uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-              box_name      text NOT NULL,
-              sensor_number integer NOT NULL,
-              sensor_type   text NOT NULL,
-              range_min     numeric NOT NULL,
-              range_max     numeric NOT NULL,
-              updated_at    timestamp DEFAULT now()
-          );
-          SQL
-
       - name: cargo sqlx prepare
         working-directory: lab-ctl
         env:
-          DATABASE_URL: postgresql://agrodash:ci@localhost:5433/control
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           source ~/.cargo/env
           cargo sqlx prepare
