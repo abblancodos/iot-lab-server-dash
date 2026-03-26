@@ -13,7 +13,9 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     pkg-config \
     docker.io \
+    docker-compose-plugin \
     rsync \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Usuario runner
