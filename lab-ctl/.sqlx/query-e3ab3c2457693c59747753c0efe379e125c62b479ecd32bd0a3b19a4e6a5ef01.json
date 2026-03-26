@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            issue_type,\n            COUNT(*)                            AS \"count!: i64\",\n            COUNT(*) FILTER (WHERE NOT resolved) AS \"unresolved!: i64\"\n        FROM sync_audit\n        GROUP BY issue_type\n        ORDER BY 2 DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "issue_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "count!: i64",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "unresolved!: i64",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "e3ab3c2457693c59747753c0efe379e125c62b479ecd32bd0a3b19a4e6a5ef01"
+}

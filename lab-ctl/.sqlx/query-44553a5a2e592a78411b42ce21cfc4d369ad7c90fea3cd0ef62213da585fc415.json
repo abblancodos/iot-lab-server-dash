@@ -1,0 +1,77 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            id, started_at, finished_at, source, status,\n            records_synced, records_skipped, records_flagged, records_conflict,\n            error_msg\n        FROM sync_log\n        ORDER BY started_at DESC\n        LIMIT $1 OFFSET $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "started_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 2,
+        "name": "finished_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 3,
+        "name": "source",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "records_synced",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "records_skipped",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "records_flagged",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "records_conflict",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "error_msg",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "44553a5a2e592a78411b42ce21cfc4d369ad7c90fea3cd0ef62213da585fc415"
+}

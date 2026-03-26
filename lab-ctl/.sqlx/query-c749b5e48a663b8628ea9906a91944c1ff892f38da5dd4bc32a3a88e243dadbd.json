@@ -1,0 +1,50 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            (SELECT COUNT(*) FROM readings)                                          AS \"total_readings!: i64\",\n            (SELECT COUNT(*) FROM sensors)                                           AS \"total_sensors!: i64\",\n            (SELECT COUNT(*) FROM boxes)                                             AS \"total_boxes!: i64\",\n            (SELECT MIN(created_at) FROM readings WHERE created_at > '2020-01-01')  AS first_reading,\n            (SELECT MAX(created_at) FROM readings WHERE created_at < now())          AS last_reading,\n            pg_size_pretty(pg_database_size(current_database()))                    AS \"db_size!: String\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "total_readings!: i64",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "total_sensors!: i64",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "total_boxes!: i64",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "first_reading",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 4,
+        "name": "last_reading",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 5,
+        "name": "db_size!: String",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "c749b5e48a663b8628ea9906a91944c1ff892f38da5dd4bc32a3a88e243dadbd"
+}

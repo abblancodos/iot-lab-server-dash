@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO readings (id, sensor_id, value, created_at)\n            VALUES ($1, $2, $3, $4)\n            ON CONFLICT (id) DO NOTHING\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Numeric",
+        "Timestamp"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6c629f0eb2cfb70869d6f3ffce02222326c97cfb6a92c816a1e77c4a6f75ac23"
+}

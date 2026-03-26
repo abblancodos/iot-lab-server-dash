@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            id,\n            sensor_id,\n            value::float8 AS value,\n            created_at\n        FROM readings\n        WHERE created_at > $1\n        ORDER BY created_at ASC\n        LIMIT 50000\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "sensor_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "value",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamp"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      null,
+      false
+    ]
+  },
+  "hash": "5866c28def15ab3f9b219be6047f3ebbd659d81bfd2ead065e057d1d13bba113"
+}

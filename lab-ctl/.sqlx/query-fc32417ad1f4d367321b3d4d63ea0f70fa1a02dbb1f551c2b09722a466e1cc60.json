@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT ar.range_min::float8 AS \"range_min!\", ar.range_max::float8 AS \"range_max!\"\n        FROM alert_ranges ar\n        JOIN sensors s ON\n            s.type          = ar.sensor_type\n            AND s.sensor_number = ar.sensor_number\n        JOIN boxes b ON b.id = s.box_id AND b.name = ar.box_name\n        WHERE s.id = $1\n        LIMIT 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "range_min!",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 1,
+        "name": "range_max!",
+        "type_info": "Float8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "fc32417ad1f4d367321b3d4d63ea0f70fa1a02dbb1f551c2b09722a466e1cc60"
+}
