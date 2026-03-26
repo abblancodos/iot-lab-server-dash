@@ -39,9 +39,9 @@ services:
     restart: unless-stopped
     working_dir: /app
     volumes:
-      - /opt/agrodash-api/agrodash-api:/app/agrodash-api
+      - /opt/agrodash-api/agrodash-api:/app/agrodash-api-bin
     env_file: .env
-    command: /app/agrodash-api
+    command: /app/agrodash-api-bin
     ports:
       - "3000:3000"
     depends_on:
@@ -66,11 +66,11 @@ services:
     working_dir: /app
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /opt/lab-ctl/lab-ctl:/app/lab-ctl
+      - /opt/lab-ctl/lab-ctl:/app/lab-ctl-bin
       - /opt/iot-server/backups:/backups
       - /opt/iot-server/config/sync-config.toml:/config/sync-config.toml:ro
     env_file: .env
-    command: /app/lab-ctl
+    command: /app/lab-ctl-bin
     environment:
       - CONFIG_PATH=/config/sync-config.toml
       - PORT=3003
