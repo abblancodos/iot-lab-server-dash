@@ -23,8 +23,9 @@ RUN mkdir -p /usr/local/lib/docker/cli-plugins && \
     -o /usr/local/lib/docker/cli-plugins/docker-compose && \
     chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
-# Usuario runner
-RUN useradd -m -s /bin/bash runner && \
+# Usuario runner con GID de docker del host (984)
+RUN groupmod -g 984 docker && \
+    useradd -m -s /bin/bash runner && \
     usermod -aG sudo runner && \
     usermod -aG docker runner && \
     echo "runner ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
