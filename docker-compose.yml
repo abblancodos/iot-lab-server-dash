@@ -34,7 +34,7 @@ services:
 
   # ── AgroDash API (Rust/Axum) ───────────────────────────────────────────────
   agrodash-api:
-    image: alpine:latest
+    image: ubuntu:22.04
     container_name: agrodash-api
     restart: unless-stopped
     working_dir: /app
@@ -60,7 +60,7 @@ services:
 
   # ── lab-ctl (sync daemon + API de infraestructura) ────────────────────────
   lab-ctl:
-    image: alpine:latest
+    image: ubuntu:22.04
     container_name: lab-ctl
     restart: unless-stopped
     working_dir: /app
